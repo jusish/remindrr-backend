@@ -1,47 +1,40 @@
-import { Request, Response, NextFunction } from "express";
-import verifyJwtToken from "../utils/jwtUtils";
-import User from "../models/User";
+import { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
+import User from '../models/User';
 
-interface AuthRequest extends Request {
-    user?: any;
-}
+const authenticate = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    let token;
 
-const protect = async (
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction
-): Promise<void> => {
-    try {
-        // Get token from header
-        const authHeader = req.headers.authorization;
-        if (!authHeader) {
-            res.status(401).json({ message: "Unauthorized" });
-            return;
+    if (
+        req.headers.authorization &&
+        req.headers.authorization.startsWith('Bearer')
+    ) {
+        try {
+            // Get token from header
+            token = req.headers.authorization.split(' ')[1];
+
+            // Verify token
+            const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { userId: string };
+
+            // Get user from the token
+            const user = await User.findById(decoded.userId).select('-password');
+            req.user = user ? user : undefined;
+
+            if (!req.user) {
+                res.status(401).json({ message: 'Not authorized, token failed' });
+                return;
+            }
+
+            next();
+        } catch (error) {
+            console.error(error);
+            res.status(401).json({ message: 'Not authorized, token failed' });
         }
+    }
 
-        const token = authHeader.split(" ")[1];
-
-        // Verify token
-        const userId = verifyJwtToken(token);
-        if (!userId) {
-            res.status(401).json({ message: "Unauthorized" });
-            return;
-        }
-
-        // Get user from token
-        const user = await User.findById(userId).select('-password');
-        if (!user) {
-            res.status(401).json({ message: "Unauthorized" });
-            return;
-        }
-
-        // Attach user to request object
-        req.user = user;
-        next();
-    } catch (error) {
-        console.error(error);
-        res.status(401).json({ message: "Unauthorized" });
+    if (!token) {
+        res.status(401).json({ message: 'Not authorized, no token' });
     }
 };
 
-export default protect;
+export default authenticate;

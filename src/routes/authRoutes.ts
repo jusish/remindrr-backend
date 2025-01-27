@@ -1,6 +1,6 @@
 import express from 'express';
 import { Router } from 'express';
-import protect from '../middlewares/authMiddleware';
+import authenticate from '../middlewares/authMiddleware';
 import { register, login, getProfile } from '../controllers/authController';
 
 
@@ -10,6 +10,6 @@ router.post('/register', register)
 router.post('/login', login)
 
 
-router.get('/profile', protect, getProfile)
+router.get('/profile', authenticate, getProfile)
 
 export default router;
