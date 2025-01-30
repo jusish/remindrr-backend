@@ -7,8 +7,10 @@ import authRoutes from "./routes/authRoutes";
 import errorHandler from "./middlewares/errorHandler";
 import cookieParser from "cookie-parser";
 
-import swaggerUi from 'swagger-ui-express';
-import specs from './swagger';
+import swaggerUi from "swagger-ui-express";
+import specs from "./swagger";
+
+import reminderRoutes from "./routes/reminderRoutes";
 
 dotenv.config();
 
@@ -20,16 +22,16 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 
 // Swagger UI
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 // Routes
 app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/reminders", reminderRoutes);
 
 // Error handling middleware
 app.use(errorHandler);
 
 // Connect to MongoDB
 connectDB();
-
 
 export default app;

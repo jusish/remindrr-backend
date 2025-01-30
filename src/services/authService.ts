@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import User from '../models/User';
-import { IUser } from '../models/User';
+import IUser from '../interfaces/user';
 import { generateAcessToken, generateRefreshToken, verifyResfreshToken } from '../utils/tokenUtils';
 
 export const register = async (userData: Partial<IUser>) => {
