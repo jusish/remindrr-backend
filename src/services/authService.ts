@@ -1,64 +1,74 @@
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-
-import User from "../models/User";
-import { IUser } from "../models/User";
+import bcrypt from 'bcryptjs';
+import User from '../models/User';
+import { IUser } from '../models/User';
+import { generateAcessToken, generateRefreshToken, verifyAccessToken, verifyResfreshToken } from '../utils/tokenUtils';
 
 export const register = async (userData: Partial<IUser>) => {
-  const { first_name, last_name, email, password, phone } = userData;
+    const { first_name, last_name, email, password } = userData;
 
-  if (!password) {
-    throw new Error("Password is required");
-  }
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) throw new Error('User already exists');
 
-  // Check if user exists
-  const existingUser = await User.findOne({ email });
-  if (existingUser) {
-    return { message: "User already exists" };
-  }
 
-  // Hash password
-  const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(password, salt);
+    if (!password) throw new Error('Password is required');
 
-  // Creating new user
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-  const user = new User({
-    first_name,
-    last_name,
-    email,
-    password: hashedPassword,
-    phone,
-  });
-  await user.save();
+    // Create new user
+    const user = new User({ first_name, last_name, email, password: hashedPassword });
+    await user.save();
 
-  return user;
+    return user;
 };
 
-
-export const login = async (credentials: { email: string, password: string }) => {
-    const {email, password} = credentials;
-
+export const login = async (credentials: { email: string; password: string }) => {
+    const { email, password } = credentials;
 
     // Find user
     const user = await User.findOne({ email });
-    if (!user) {
-      return { message: "Invalid credentials" };
-    }
+    if (!user) throw new Error('Invalid email or password');
 
-    // Compare password
-
+    // Compare passwords
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return { message: "Invalid credentials" };
-    }
+    if (!isMatch) throw new Error('Invalid email or password');
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET || '', {
-        expiresIn: '1h'
-    });
+    // Generate tokens
+    const accessTokens = generateAcessToken(user.id.toString());
+    const refreshTokens = generateRefreshToken(user.id.toString());
 
-    return token;
-}
+    // Save refresh token to user
+    user.refresh_tokens.push(refreshTokens);
+    await user.save();
+
+    return { accessTokens, refreshTokens };
+};
+
+export const logout = async (refreshToken: string) => {
+    const user = await User.findOne({ refreshTokens: refreshToken });
+    if (!user) return;
+
+    // Remove refresh token from user
+    user.refresh_tokens = user.refresh_tokens.filter((token) => token !== refreshToken);
+    await user.save();
+};
+
+export const refreshAccessToken = async (refreshToken: string) => {
+    const user = await User.findOne({ refreshTokens: refreshToken });
+    if (!user) throw new Error('Invalid refresh token');
+
+    // Verify refresh token
+    const decoded = verifyResfreshToken(refreshToken);
+    if (!decoded) throw new Error('Invalid refresh token');
+
+    // Generate new access token
+    const accessToken = generateAcessToken(decoded.id);
+
+    return { accessToken };
+};
 
 
-export default { register, login };
+
+export default { register, login, logout, refreshAccessToken };
