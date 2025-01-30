@@ -2,7 +2,6 @@ import mongoose, { Schema, Document, Model } from "mongoose";
 import { v4 as uuidv4 } from "uuid";
 
 interface IUser extends Document {
-    id: string;
     first_name: string;
     last_name: string;
     email: string;
@@ -13,12 +12,6 @@ interface IUser extends Document {
 }
 
 const userSchema: Schema<IUser> = new Schema({
-    id: {
-        type: String,
-        default: uuidv4,
-        required: true,
-        unique: true,
-    },
     first_name: {
         type: String,
         required: true,

@@ -5,6 +5,10 @@ import dotenv from "dotenv";
 import connectDB from "./config/db";
 import authRoutes from "./routes/authRoutes";
 import errorHandler from "./middlewares/errorHandler";
+import cookieParser from "cookie-parser";
+
+import swaggerUi from 'swagger-ui-express';
+import specs from './swagger/swagger';
 
 dotenv.config();
 
@@ -13,16 +17,19 @@ const app = express();
 // Middlewares
 app.use(cors());
 app.use(bodyParser.json());
+app.use(cookieParser());
+
+// Swagger UI
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
 // Routes
-
 app.use("/api/v1/auth", authRoutes);
 
 // Error handling middleware
-
 app.use(errorHandler);
 
 // Connect to MongoDB
 connectDB();
+
 
 export default app;

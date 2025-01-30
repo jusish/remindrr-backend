@@ -1,10 +1,10 @@
 import bcrypt from 'bcryptjs';
 import User from '../models/User';
 import { IUser } from '../models/User';
-import { generateAcessToken, generateRefreshToken, verifyAccessToken, verifyResfreshToken } from '../utils/tokenUtils';
+import { generateAcessToken, generateRefreshToken, verifyResfreshToken } from '../utils/tokenUtils';
 
 export const register = async (userData: Partial<IUser>) => {
-    const { first_name, last_name, email, password } = userData;
+    const { first_name, last_name, email,phone, password } = userData;
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -18,7 +18,7 @@ export const register = async (userData: Partial<IUser>) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     // Create new user
-    const user = new User({ first_name, last_name, email, password: hashedPassword });
+    const user = new User({ first_name, last_name, email, phone, password: hashedPassword });
     await user.save();
 
     return user;

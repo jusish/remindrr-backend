@@ -27,9 +27,12 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
-export const logout = async (req: Request, res: Response) => {
+export const logout = async (req: Request, res: Response): Promise<void> => {
   const refreshToken = req.cookies.refreshToken;
-  if (!refreshToken) return res.sendStatus(204); // No content
+  if (!refreshToken) {
+    res.sendStatus(204); // No content
+    return;
+  }
 
   try {
     await authService.logout(refreshToken);
@@ -41,9 +44,12 @@ export const logout = async (req: Request, res: Response) => {
   }
 };
 
-export const refreshAccessToken = async (req: Request, res: Response) => {
+export const refreshAccessToken = async (req: Request, res: Response): Promise<void> => {
   const refreshToken = req.cookies.refreshToken;
-  if (!refreshToken) return res.sendStatus(401); // Unauthorized
+  if (!refreshToken) {
+    res.sendStatus(401); // Unauthorized
+    return;
+  }
 
   try {
     const { accessToken } = await authService.refreshAccessToken(refreshToken);

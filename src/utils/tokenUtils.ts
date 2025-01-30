@@ -7,14 +7,14 @@ const generateAcessToken = (userId: string): string => {
 };
 
 const generateRefreshToken = (userId: string): string => {
-  return jwt.sign({ id: userId }, process.env.REFRESH_TOKEN_SECRET || "", {
+  return jwt.sign({ id: userId }, process.env.JWT_REFRESH_SECRET || "", {
     expiresIn: "7d",
   });
 };
 
 const verifyAccessToken = (token: string) => {
   try {
-    return jwt.verify(token, process.env.JWT_ACCESS_SECRET || "") as {
+    return jwt.verify(token, process.env.JWT_SECRET || "") as {
       id: string;
     };
   } catch (error) {
