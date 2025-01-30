@@ -1,87 +1,29 @@
-import bcryptjs from "bcryptjs";
-import User from "../models/User";
-import generateJwtToken from "../utils/jwtUtils";
+import { Request, Response } from "express";
 
-const register = async (req: any, res: any) => {
+import authService from "../services/authService";
+
+export const register = async (req: Request, res: Response) => {
   try {
-    const { first_name, last_name, email, phone, password } = req.body;
-
-    // Check if user exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: "User already exists" });
-    }
-
-    // Hash password
-    const salt = await bcryptjs.genSalt(10);
-    const hashedPassword = await bcryptjs.hash(password, salt)
-
-    const newUser = new User({
-      first_name,
-      last_name,
-      email,
-      phone,
-      password: hashedPassword,
-    });
-    await newUser.save();
-
-    res.status(201).json({ message: "User registered successfully" });
-  } catch (err) {
-    res.status(500).json({ message: "Internal Server Error" });
-  }
-};
-
-const login = async (req: any, res: any) => {
-  try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
-
-    if (!user) {
-      return res.status(400).json({ message: "Invalid credentials" });
-    }
-
-    //check if password matches
-
-    const isMatch = await bcryptjs.compare(password, user.password);
-
-    if (!isMatch) {
-      return res.status(400).json({ message: "Invalid credentials" });
-    }
-
-    // Generate JWT token
-
-    const token = generateJwtToken(user._id.toString());
-    res.json({ token });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({ message: "Internal Server Error" });
-  }
-};
-
-const getProfile = async (req: any, res: any) => {
-  try {
-    const user = await User.findById(req.user._id).select("-password");
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    res.json(user);
+    const user = await authService.register(req.body);
+    res.status(201).json(user);
   } catch (err) {
     console.log(err);
-    return res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({ message: 'Internal server error' });
   }
-};
+}
 
 
-const logout = async (req: any, res: any) => {
+
+export const login = async (req: Request, res: Response) => {
   try {
-    req.user = null;
-    res.status(200).json({ message: "User logged out successfully" });
+    const user = await authService.login(req.body);
+    if (typeof user === 'string') {
+      res.status(200).json({ token: user });
+    } else {
+      res.status(400).json({ message: user.message });
+    }
   } catch (err) {
     console.log(err);
-    return res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({ message: 'Internal server error' });
   }
-};
-
-
-export { register, login, getProfile, logout };
+}

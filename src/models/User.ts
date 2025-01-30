@@ -1,8 +1,18 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document, Model } from "mongoose";
 import { v4 as uuidv4 } from 'uuid';
 
 
-const userSchema = new mongoose.Schema({
+interface IUser extends Document {
+    id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+    password: string;
+    phone: string;
+    reminders: string[];
+}
+
+const userSchema: Schema<IUser> = new Schema({
     id: {
         type: String,
         default: uuidv4,
@@ -40,6 +50,7 @@ const userSchema = new mongoose.Schema({
     }]
 });
 
-const User = mongoose.model('User', userSchema);
+const User: Model<IUser> = mongoose.model<IUser>('User', userSchema);
 
 export default User;
+export { IUser };

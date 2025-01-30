@@ -1,40 +1,21 @@
-import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
-import User from '../models/User';
+import { Request, Response, NextFunction } from "express";
+import jwt from "jsonwebtoken";
 
-const authenticate = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    let token;
-
-    if (
-        req.headers.authorization &&
-        req.headers.authorization.startsWith('Bearer')
-    ) {
-        try {
-            // Get token from header
-            token = req.headers.authorization.split(' ')[1];
-
-            // Verify token
-            const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { userId: string };
-
-            // Get user from the token
-            const user = await User.findById(decoded.userId).select('-password');
-            req.user = user ? user : undefined;
-
-            if (!req.user) {
-                res.status(401).json({ message: 'Not authorized, token failed' });
-                return;
-            }
-
-            next();
-        } catch (error) {
-            console.error(error);
-            res.status(401).json({ message: 'Not authorized, token failed' });
-        }
-    }
+const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
 
     if (!token) {
-        res.status(401).json({ message: 'Not authorized, no token' });
+        return res.sendStatus(401);
     }
+
+    jwt.verify(token, process.env.JWT_SECRET || "", (err, user) => {
+        if (err) return res.sendStatus(403);
+        req.user = user;
+        next();
+
+    });
 };
 
-export default authenticate;
+
+export default authenticateToken;
