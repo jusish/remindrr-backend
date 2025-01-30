@@ -1,17 +1,13 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 import { v4 as uuidv4 } from "uuid";
-
-interface IUser extends Document {
-    first_name: string;
-    last_name: string;
-    email: string;
-    password: string;
-    phone: string;
-    refresh_tokens: string[];
-    reminders: string[];
-}
+import IUser from "../interfaces/user";
 
 const userSchema: Schema<IUser> = new Schema({
+    id: {
+        type: String,
+        default: uuidv4,
+        unique: true,
+    },
     first_name: {
         type: String,
         required: true,

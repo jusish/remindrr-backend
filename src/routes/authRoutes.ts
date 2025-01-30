@@ -5,7 +5,7 @@ const router = Router();
 
 /**
  * @swagger
- * /api/v1/register:
+ * /api/v1/auth/register:
  *   post:
  *     summary: Register a new user
  *     tags: [Authentication]
@@ -18,21 +18,16 @@ const router = Router();
  *             properties:
  *               first_name:
  *                 type: string
- *                 example: Justin
  *               last_name:
  *                 type: string
- *                 example: Doe
  *               email:
  *                 type: string
  *                 format: email
- *                 example: justin@gmail.com
  *               phone:
  *                 type: string
- *                 example: 1234567890
  *               password:
  *                 type: string
  *                 format: password
- *                 example: justin123
  *     responses:
  *       201:
  *         description: User registered successfully

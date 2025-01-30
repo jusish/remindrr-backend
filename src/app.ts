@@ -8,7 +8,7 @@ import errorHandler from "./middlewares/errorHandler";
 import cookieParser from "cookie-parser";
 
 import swaggerUi from 'swagger-ui-express';
-import specs from './swagger/swagger';
+import specs from './swagger';
 
 dotenv.config();
 

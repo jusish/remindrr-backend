@@ -1,12 +1,12 @@
-import mongoose from "mongoose";
+import mongoose, { Document, Model } from "mongoose";
 import { v4 as uuidv4 } from 'uuid';
 
+import IReminder from "../interfaces/reminder";
 
 const reminderSchema = new mongoose.Schema({
     id: {
         type: String,
         default: uuidv4,
-        required: true,
         unique: true
     },
     title: {
@@ -17,15 +17,10 @@ const reminderSchema = new mongoose.Schema({
         type: String,
         required: false,
     },
-    date: {
+    due_date: {
         type: Date,
         required: true,
         default: ('2025-02-01T10:00:00')
-    },
-    user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
     },
     isFavorite: {
         type: Boolean,
@@ -34,11 +29,16 @@ const reminderSchema = new mongoose.Schema({
     isEmergent: {
         type: Boolean,
         default: false
-    }
+    },
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
 })
 
 
 
-const Reminder = mongoose.model('Reminder', reminderSchema);
+const Reminder: Model<IReminder> = mongoose.model<IReminder>('Reminder', reminderSchema);
 
 export default Reminder;
