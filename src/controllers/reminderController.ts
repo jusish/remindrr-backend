@@ -1,61 +1,66 @@
-import { Request, Response } from "express";
-
+import { Response } from "express";
 import reminderService from "../services/reminderService";
 import AuthRequest from "../interfaces/authRequest";
 
 export const createReminder = async (req: AuthRequest, res: Response) => {
-  console.log("Decoded User:", req.user); // Debugging
-
   try {
     const userId = req.user?.id;
     const reminder = await reminderService.createReminder(userId, req.body);
     res.status(201).json(reminder);
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res.status(500).json({ message: "Internal server error" });
   }
 };
 
-export const editReminder = async (req: Request, res: Response) => {
+export const editReminder = async (req: AuthRequest, res: Response) => {
   try {
+    const userId = req.user?.id;
     const reminderId = req.params.id;
-    const reminder = await reminderService.editReminder(reminderId, req.body);
+    const reminder = await reminderService.editReminder(
+      userId,
+      reminderId,
+      req.body
+    );
     res.status(200).json(reminder);
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res.status(500).json({ message: "Internal server error" });
   }
 };
 
-export const markAsEmergent = async (req: Request, res: Response) => {
+export const markAsEmergent = async (req: AuthRequest, res: Response) => {
   try {
+    const userId = req.user?.id;
     const reminderId = req.params.id;
-    const reminder = await reminderService.toggleEmergent(reminderId);
+    const reminder = await reminderService.toggleEmergent(userId, reminderId);
     res.status(200).json(reminder);
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res.status(500).json({ message: "Internal server error" });
   }
 };
 
-export const markAsFavorite = async (req: Request, res: Response) => {
+export const markAsFavorite = async (req: AuthRequest, res: Response) => {
   try {
+    const userId = req.user?.id;
     const reminderId = req.params.id;
-    const reminder = await reminderService.toggleFavorite(reminderId);
+    const reminder = await reminderService.toggleFavorite(userId, reminderId);
     res.status(200).json(reminder);
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res.status(500).json({ message: "Internal server error" });
   }
 };
 
-export const deleteReminder = async (req: Request, res: Response) => {
+export const deleteReminder = async (req: AuthRequest, res: Response) => {
   try {
+    const userId = req.user?.id;
     const reminderId = req.params.id;
-    await reminderService.deleteReminder(reminderId);
+    await reminderService.deleteReminder(userId, reminderId);
     res.sendStatus(204); // No content
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -69,18 +74,22 @@ export const getAllReminderForUser = async (
     const reminders = await reminderService.getAllRemindersForUser(userId);
     res.status(200).json(reminders);
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res.status(500).json({ message: "Internal server error" });
   }
 };
 
-export const getSingleReminder = async (req: Request, res: Response) => {
+export const getSingleReminder = async (req: AuthRequest, res: Response) => {
   try {
+    const userId = req.user?.id;
     const reminderId = req.params.id;
-    const reminder = await reminderService.getSingleReminder(reminderId);
+    const reminder = await reminderService.getSingleReminder(
+      userId,
+      reminderId
+    );
     res.status(200).json(reminder);
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -90,9 +99,6 @@ export const filterAndSortReminders = async (
   res: Response
 ) => {
   try {
-    console.log("herrr")
-    console.log(req.body)
-    console.log(req.query)
     const userId = req.user?.id;
     const filters = req.query;
     const sortOptions = req.query;
@@ -104,7 +110,7 @@ export const filterAndSortReminders = async (
     );
     res.status(200).json(reminders);
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res.status(500).json({ message: "Internal server error" });
   }
 };

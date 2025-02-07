@@ -16,64 +16,73 @@ export const createReminder = async (
   }
 };
 
-// Edit reminders
+// Edit a reminder (only if it belongs to the user)
 export const editReminder = async (
+  userId: string,
   reminderId: string,
   updateData: Partial<IReminder>
 ) => {
-  const reminder = await Reminder.findByIdAndUpdate(reminderId, updateData, {
-    new: true,
-  });
-  if (!reminder) throw new Error("Reminder not found");
+  const reminder = await Reminder.findOneAndUpdate(
+    { _id: reminderId, user: userId }, // Ensure the user owns the reminder
+    updateData,
+    { new: true }
+  );
+  if (!reminder) throw new Error("Reminder not found or unauthorized");
   return reminder;
 };
 
-// Toggle emergent status
-export const toggleEmergent = async (reminderId: string) => {
-  const reminder = await Reminder.findById(reminderId);
-  if (!reminder) throw new Error("Reminder not found");
+// Toggle emergent status (only if it belongs to the user)
+export const toggleEmergent = async (userId: string, reminderId: string) => {
+  const reminder = await Reminder.findOne({ _id: reminderId, user: userId });
+  if (!reminder) throw new Error("Reminder not found or unauthorized");
 
   reminder.isEmergent = !reminder.isEmergent;
   await reminder.save();
   return reminder;
 };
 
-// Toggle favorite status
-export const toggleFavorite = async (reminderId: string) => {
-  const reminder = await Reminder.findById(reminderId);
-  if (!reminder) throw new Error("Reminder not found");
+// Toggle favorite status (only if it belongs to the user)
+export const toggleFavorite = async (userId: string, reminderId: string) => {
+  const reminder = await Reminder.findOne({ _id: reminderId, user: userId });
+  if (!reminder) throw new Error("Reminder not found or unauthorized");
 
   reminder.isFavorite = !reminder.isFavorite;
   await reminder.save();
   return reminder;
 };
 
-// Delete reminder
-export const deleteReminder = async (reminderId: string) => {
-  const reminder = await Reminder.findByIdAndDelete(reminderId);
-  if (!reminder) throw new Error("Reminder not found");
+// Delete a reminder (only if it belongs to the user)
+export const deleteReminder = async (userId: string, reminderId: string) => {
+  const reminder = await Reminder.findOneAndDelete({
+    _id: reminderId,
+    user: userId,
+  });
+  if (!reminder) throw new Error("Reminder not found or unauthorized");
   return reminder;
 };
 
-// Get reminders for a user
+// Get reminders for a specific user
 export const getAllRemindersForUser = async (userId: string) => {
   return await Reminder.find({ user: userId }).lean();
 };
 
-// Get a single reminder
-export const getSingleReminder = async (reminderId: string) => {
-  const reminder = await Reminder.findById(reminderId).lean();
-  if (!reminder) throw new Error("Reminder not found");
+// Get a single reminder (only if it belongs to the user)
+export const getSingleReminder = async (userId: string, reminderId: string) => {
+  const reminder = await Reminder.findOne({
+    _id: reminderId,
+    user: userId,
+  }).lean();
+  if (!reminder) throw new Error("Reminder not found or unauthorized");
   return reminder;
 };
 
-// Filter & Sort reminders
+// Filter & Sort reminders (only for the authenticated user)
 export const filterAndSortReminders = async (
   userId: mongoose.Types.ObjectId,
   filters: any,
   sortOptions: any
 ) => {
-  console.log("here")
+  console.log("here");
   const query: any = { user: userId };
 
   if (filters.due_date) query.due_date = { $gte: new Date(filters.due_date) };
