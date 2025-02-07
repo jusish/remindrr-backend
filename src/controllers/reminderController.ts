@@ -30,7 +30,7 @@ export const editReminder = async (req: Request, res: Response) => {
 export const markAsEmergent = async (req: Request, res: Response) => {
   try {
     const reminderId = req.params.id;
-    const reminder = await reminderService.markAsEmergent(reminderId);
+    const reminder = await reminderService.toggleEmergent(reminderId);
     res.status(200).json(reminder);
   } catch (err) {
     console.log(err);
@@ -41,7 +41,7 @@ export const markAsEmergent = async (req: Request, res: Response) => {
 export const markAsFavorite = async (req: Request, res: Response) => {
   try {
     const reminderId = req.params.id;
-    const reminder = await reminderService.markAsFavorite(reminderId);
+    const reminder = await reminderService.toggleFavorite(reminderId);
     res.status(200).json(reminder);
   } catch (err) {
     console.log(err);
@@ -66,7 +66,7 @@ export const getAllReminderForUser = async (
 ) => {
   try {
     const userId = req.user?.id;
-    const reminders = await reminderService.getAllReminderForUser(userId);
+    const reminders = await reminderService.getAllRemindersForUser(userId);
     res.status(200).json(reminders);
   } catch (err) {
     console.log(err);

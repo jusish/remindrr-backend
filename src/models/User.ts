@@ -34,12 +34,6 @@ const userSchema: Schema<IUser> = new Schema({
     unique: true,
   },
   refresh_tokens: [{ type: String }],
-  reminders: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Reminder",
-    },
-  ],
 });
 
 const User: Model<IUser> = mongoose.model<IUser>("User", userSchema);

@@ -6,7 +6,6 @@ interface IUser extends Document {
     password: string;
     phone: string;
     refresh_tokens: string[];
-    reminders: string[];
 }
 
 export default IUser;

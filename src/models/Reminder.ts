@@ -6,7 +6,6 @@ import IReminder from "../interfaces/reminder";
 const reminderSchema = new mongoose.Schema({
     id: {
         type: String,
-        default: uuidv4,
         unique: true
     },
     title: {
@@ -31,7 +30,7 @@ const reminderSchema = new mongoose.Schema({
         default: false
     },
     user: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: 'User',
         required: true
     },

@@ -1,34 +1,38 @@
 import Reminder from "../models/Reminder";
 import User from "../models/User";
-
+import mongoose, { SortOrder } from "mongoose";
 import IReminder from "../interfaces/reminder";
-import { SortOrder } from "mongoose";
 
 // Create a new reminder
-
 export const createReminder = async (
   userId: string,
   reminderData: Partial<IReminder>
 ) => {
-  const reminder = new Reminder({
-    ...reminderData,
-    user: userId,
-  });
-  await reminder.save();
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
-  // Update User's reminder array
+  try {
+    const reminder = new Reminder({ ...reminderData, user: userId });
+    await reminder.save({ session });
+    console.log(reminder);
 
-  const user = await User.findById(userId);
-  if (user) {
-    user.reminders.push(reminder.id);
-    await user.save();
+    await User.findByIdAndUpdate(
+      userId,
+      { $push: { reminders: reminder._id } },
+      { session }
+    );
+
+    await session.commitTransaction();
+    session.endSession();
+    return reminder;
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    throw new Error(`Error creating reminder: ${(error as any).message}`);
   }
-
-  return reminder;
 };
 
 // Edit reminders
-
 export const editReminder = async (
   reminderId: string,
   updateData: Partial<IReminder>
@@ -36,107 +40,81 @@ export const editReminder = async (
   const reminder = await Reminder.findByIdAndUpdate(reminderId, updateData, {
     new: true,
   });
-  if (!reminder) {
-    throw new Error("Reminder not found");
-  }
+  if (!reminder) throw new Error("Reminder not found");
   return reminder;
 };
 
-// Mark as important reminder
-
-export const markAsEmergent = async (reminderId: string) => {
+// Toggle emergent status
+export const toggleEmergent = async (reminderId: string) => {
   const reminder = await Reminder.findById(reminderId);
-  if (!reminder) {
-    throw new Error("Reminder not found");
-  }
+  if (!reminder) throw new Error("Reminder not found");
 
   reminder.isEmergent = !reminder.isEmergent;
   await reminder.save();
-
   return reminder;
 };
 
-// Mark as favorite reminder
-
-export const markAsFavorite = async (reminderId: string) => {
+// Toggle favorite status
+export const toggleFavorite = async (reminderId: string) => {
   const reminder = await Reminder.findById(reminderId);
-  if (!reminder) {
-    throw new Error("Reminder not found");
-  }
+  if (!reminder) throw new Error("Reminder not found");
 
   reminder.isFavorite = !reminder.isFavorite;
   await reminder.save();
-
   return reminder;
 };
 
 // Delete reminder
-
 export const deleteReminder = async (reminderId: string) => {
   const reminder = await Reminder.findByIdAndDelete(reminderId);
-  if (!reminder) {
-    throw new Error("Reminder not found");
-  }
+  if (!reminder) throw new Error("Reminder not found");
 
-  const user = await User.findById(reminder.user);
-  if (user) {
-    user.reminders = user.reminders.filter((id) => id !== reminderId);
-    await user.save();
+  if (reminder.user) {
+    await User.findByIdAndUpdate(reminder.user, {
+      $pull: { reminders: reminderId },
+    });
   }
-
   return reminder;
 };
 
-// Get reminders per each user
-
-export const getAllReminderForUser = async (userId: string) => {
-  const reminders = await Reminder.find({ user: userId }).populate("user");
-  return reminders;
+// Get reminders for a user
+export const getAllRemindersForUser = async (userId: string) => {
+  return await Reminder.find({ user: userId }).populate("user").lean();
 };
 
 // Get a single reminder
-
 export const getSingleReminder = async (reminderId: string) => {
-  const reminder = await Reminder.findById(reminderId).populate("user");
-  if (!reminder) {
-    throw new Error("Reminder not found");
-  }
+  const reminder = await Reminder.findById(reminderId).populate("user").lean();
+  if (!reminder) throw new Error("Reminder not found");
   return reminder;
 };
 
-// Apply filters
-
+// Filter & Sort reminders
 export const filterAndSortReminders = async (
   userId: string,
   filters: any,
   sortOptions: any
 ) => {
-  const query: { user: string; due_date?: Date; isFavorite?: boolean } = {
-    user: userId,
-  };
+  const query: any = { user: userId };
 
-  // Apply filters
-
-  if (filters.due_date) query["due_date"] = filters.due_date;
-  if (filters.isFavorite) query["isFavorite"] = filters.isFavorite;
-
-  // Apply sort options
+  if (filters.due_date) query.due_date = new Date(filters.due_date);
+  if (filters.isFavorite !== undefined)
+    query.isFavorite = Boolean(filters.isFavorite);
 
   const sort: { [key: string]: SortOrder } = {};
+  if (sortOptions.sortBy)
+    sort[sortOptions.sortBy] = sortOptions.order === "desc" ? -1 : 1;
 
-  if (sortOptions.sortBy) sort[sortOptions.sortBy] = sortOptions.order || 1;
-
-  const reminders = await Reminder.find(query).sort(sort).populate("user");
-  return reminders;
+  return await Reminder.find(query).sort(sort).populate("user").lean();
 };
 
 export default {
   createReminder,
   editReminder,
-  markAsEmergent,
-  markAsFavorite,
+  toggleEmergent,
+  toggleFavorite,
   deleteReminder,
-  getAllReminderForUser,
+  getAllRemindersForUser,
   getSingleReminder,
   filterAndSortReminders,
 };

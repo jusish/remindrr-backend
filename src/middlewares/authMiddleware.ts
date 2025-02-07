@@ -2,26 +2,29 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import AuthRequest from "../interfaces/authRequest";
 
-const authenticateToken = (
+const authenticateToken = async (
   req: AuthRequest,
   res: Response,
   next: NextFunction
-): void => {
+): Promise<void> => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
 
   if (!token) {
-    res.sendStatus(401).json({ message: "No token provided" });
+    res.status(401).json({ message: "No token provided" });
     return;
   }
 
-  jwt.verify(token, process.env.JWT_SECRET || "", (err, user) => {
-    if (err) return res.sendStatus(403).json({ message: "Invalid token" });
-
-    req.user = user;
-
+  try {
+    const user = (await jwt.verify(token, process.env.JWT_SECRET || "")) as {
+      id: string;
+    };
+    req.user = user; // Attach user to request object
     next();
-  });
+  } catch (error) {
+    res.status(403).json({ message: "Invalid token" });
+    return;
+  }
 };
 
 export default authenticateToken;
