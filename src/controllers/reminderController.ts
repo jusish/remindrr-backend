@@ -65,19 +65,17 @@ export const deleteReminder = async (req: AuthRequest, res: Response) => {
   }
 };
 
-export const getAllReminderForUser = async (
-  req: AuthRequest,
-  res: Response
-) => {
+export const getAllReminderForUser = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.user?.id;
-    const reminders = await reminderService.getAllRemindersForUser(userId);
-    res.status(200).json(reminders);
+      const userId = req.user?.id;
+      const reminders = await reminderService.getAllRemindersForUser(userId);
+      res.status(200).json(reminders);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Internal server error" });
+      console.error(err);
+      res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 export const getSingleReminder = async (req: AuthRequest, res: Response) => {
   try {
@@ -94,20 +92,16 @@ export const getSingleReminder = async (req: AuthRequest, res: Response) => {
   }
 };
 
-export const filterAndSortReminders = async (
-  req: AuthRequest,
-  res: Response
-) => {
+export const filterAndSortReminders = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user?.id;
     const filters = req.query;
-    const sortOptions = req.query;
+    const sortOptions = {
+      sortBy: req.query.sortBy,
+      order: req.query.order,
+    };
 
-    const reminders = await reminderService.filterAndSortReminders(
-      userId,
-      filters,
-      sortOptions
-    );
+    const reminders = await reminderService.filterAndSortReminders(userId, filters, sortOptions);
     res.status(200).json(reminders);
   } catch (err) {
     console.error(err);

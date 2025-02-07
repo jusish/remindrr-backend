@@ -1,38 +1,42 @@
-import mongoose, { Model } from "mongoose"
+import mongoose, { Model } from "mongoose";
 
 import IReminder from "../interfaces/reminder";
 
-const reminderSchema = new mongoose.Schema({
+const reminderSchema = new mongoose.Schema(
+  {
     title: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
     description: {
-        type: String,
-        required: false,
+      type: String,
+      required: false,
     },
     due_date: {
-        type: Date,
-        required: true,
-        default: ('2025-02-01T10:00:00')
+      type: Date,
+      required: true,
+      default: "2025-02-01T10:00:00",
     },
     isFavorite: {
-        type: Boolean,
-        default: false
+      type: Boolean,
+      default: false,
     },
     isEmergent: {
-        type: Boolean,
-        default: false
+      type: Boolean,
+      default: false,
     },
     user: {
-        type: String,
-        ref: 'User',
-        required: true
+      type: String,
+      ref: "User",
+      required: true,
     },
-})
+  },
+  { timestamps: true }
+);
 
-
-
-const Reminder: Model<IReminder> = mongoose.model<IReminder>('Reminder', reminderSchema);
+const Reminder: Model<IReminder> = mongoose.model<IReminder>(
+  "Reminder",
+  reminderSchema
+);
 
 export default Reminder;

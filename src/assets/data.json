@@ -1,0 +1,19 @@
+{
+  "data": "mine",
+  "signup": {
+    "first_name": "Audrey",
+    "last_name": "Kirezi",
+    "email": "kireziaudrey100@gmail.com",
+    "phone": "+250787999752",
+    "password": "audrey123"
+  },
+  "login": {
+    "email": "ishimwejustin67@gmail.com",
+    "password": "justin123"
+  },
+  "reminder": {
+    "title": "For peace",
+    "description": "this is the description",
+    "due_date": "2025-02-01T10:00:00"
+  }
+}

@@ -92,7 +92,11 @@ router.put("/edit/:id", authenticateToken, reminderController.editReminder);
  *       200:
  *         description: Reminder marked as emergent
  */
-router.patch("/emergent/:id/", authenticateToken, reminderController.markAsEmergent);
+router.patch(
+  "/emergent/:id/",
+  authenticateToken,
+  reminderController.markAsEmergent
+);
 
 /**
  * @swagger
@@ -112,7 +116,11 @@ router.patch("/emergent/:id/", authenticateToken, reminderController.markAsEmerg
  *       200:
  *         description: Reminder marked as favorite
  */
-router.patch("/favorite/:id", authenticateToken, reminderController.markAsFavorite);
+router.patch(
+  "/favorite/:id",
+  authenticateToken,
+  reminderController.markAsFavorite
+);
 
 /**
  * @swagger
@@ -132,7 +140,11 @@ router.patch("/favorite/:id", authenticateToken, reminderController.markAsFavori
  *       200:
  *         description: Reminder deleted successfully
  */
-router.delete("/delete/:id/", authenticateToken, reminderController.deleteReminder);
+router.delete(
+  "/delete/:id/",
+  authenticateToken,
+  reminderController.deleteReminder
+);
 
 /**
  * @swagger
@@ -166,7 +178,11 @@ router.get("/", authenticateToken, reminderController.getAllReminderForUser);
  *       200:
  *         description: Reminder details
  */
-router.get("/by-id/:id", authenticateToken, reminderController.getSingleReminder);
+router.get(
+  "/by-id/:id",
+  authenticateToken,
+  reminderController.getSingleReminder
+);
 
 /**
  * @swagger
@@ -182,23 +198,38 @@ router.get("/by-id/:id", authenticateToken, reminderController.getSingleReminder
  *         schema:
  *           type: string
  *           format: date-time
+ *         description: Filter reminders due after the given date
  *       - in: query
  *         name: isFavorite
  *         schema:
- *           type: boolean
+ *           type: string
+ *           enum: ["true", "false"]
+ *         description: Filter by favorite status (true/false)
+ *       - in: query
+ *         name: isEmergent
+ *         schema:
+ *           type: string
+ *           enum: ["true", "false"]
+ *         description: Filter by emergent status (true/false)
  *       - in: query
  *         name: sortBy
  *         schema:
  *           type: string
+ *         description: Sort by a field (e.g., "createdAt", "due_date")
  *       - in: query
  *         name: order
  *         schema:
  *           type: string
  *           enum: [asc, desc]
+ *         description: Sort order (ascending or descending)
  *     responses:
  *       200:
  *         description: List of filtered and sorted reminders
  */
-router.get("/filter-sort", authenticateToken, reminderController.filterAndSortReminders);
+router.get(
+  "/filter-sort",
+  authenticateToken,
+  reminderController.filterAndSortReminders
+);
 
 export default router;
