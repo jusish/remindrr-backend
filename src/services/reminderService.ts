@@ -1,5 +1,5 @@
-import Reminder from "../models/Reminder";
-import User from "../models/User";
+import Reminder from "../models/reminder";
+import User from "../models/user";
 import mongoose, { SortOrder } from "mongoose";
 import IReminder from "../interfaces/reminder";
 

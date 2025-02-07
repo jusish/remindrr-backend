@@ -1,13 +1,8 @@
-import mongoose, { Document, Model } from "mongoose";
-import { v4 as uuidv4 } from 'uuid';
+import mongoose, { Document, Model } from "mongoose"
 
 import IReminder from "../interfaces/reminder";
 
 const reminderSchema = new mongoose.Schema({
-    id: {
-        type: String,
-        unique: true
-    },
     title: {
         type: String,
         required: true,

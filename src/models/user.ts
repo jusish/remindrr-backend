@@ -3,11 +3,6 @@ import { v4 as uuidv4 } from "uuid";
 import IUser from "../interfaces/user";
 
 const userSchema: Schema<IUser> = new Schema({
-  id: {
-    type: String,
-    default: uuidv4,
-    unique: true,
-  },
   first_name: {
     type: String,
     required: true,
