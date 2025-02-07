@@ -48,14 +48,14 @@ export const login = async (credentials: {
   if (!isMatch) throw new Error("Invalid email or password");
 
   // Generate tokens
-  const accessTokens = generateAcessToken(user.id.toString());
-  const refreshTokens = generateRefreshToken(user.id.toString());
+  const accessToken = generateAcessToken(user.id.toString());
+  const refreshToken = generateRefreshToken(user.id.toString());
 
   // Save refresh token to user
-  user.refresh_tokens.push(refreshTokens);
+  user.refresh_tokens.push(refreshToken);
   await user.save();
 
-  return { accessTokens, refreshTokens };
+  return { accessToken, refreshToken };
 };
 
 export const logout = async (refreshToken: string) => {

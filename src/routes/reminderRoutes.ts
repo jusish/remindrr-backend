@@ -172,7 +172,7 @@ router.delete('/delete/:id/', authenticateToken, reminderController.deleteRemind
 
 /**
  * @swagger
- * /api/v1/reminders/user:
+ * /api/v1/reminders/:
  *   get:
  *     summary: Get all reminders for a user
  *     tags: [Reminders]
@@ -190,7 +190,7 @@ router.delete('/delete/:id/', authenticateToken, reminderController.deleteRemind
  *       500:
  *         description: Internal Server Error
  */
-router.get('/user', authenticateToken, reminderController.getAllReminderForUser);
+router.get('/', authenticateToken, reminderController.getAllReminderForUser);
 
 
 

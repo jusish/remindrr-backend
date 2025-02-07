@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 
 const generateAcessToken = (userId: string): string => {
   return jwt.sign({ id: userId }, process.env.JWT_SECRET || "", {
-    expiresIn: "15m",
+    expiresIn: "60m",
   });
 };
 
@@ -32,6 +32,9 @@ const verifyResfreshToken = (token: string) => {
   }
 };
 
-
-
-export { generateAcessToken, generateRefreshToken, verifyAccessToken, verifyResfreshToken };
+export {
+  generateAcessToken,
+  generateRefreshToken,
+  verifyAccessToken,
+  verifyResfreshToken,
+};

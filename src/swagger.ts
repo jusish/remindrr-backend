@@ -1,17 +1,19 @@
-import swaggerJsdoc from "swagger-jsdoc";
+import swaggerJSDoc from "swagger-jsdoc";
+import swaggerUi from "swagger-ui-express";
+import { Express } from "express";
 
 const options = {
   definition: {
     openapi: "3.0.0",
     info: {
-      title: "Remindrr API Documentation",
+      title: "Remindrr API",
       version: "1.0.0",
-      description: "API documentation for Remindrr application",
+      description: "API documentation for the Remindrr app",
     },
     servers: [
       {
-        url: "http://localhost:8000",
-        description: "Development server",
+        url: "http://localhost:8000/api/v1",
+        description: "Development Server",
       },
     ],
     components: {
@@ -21,41 +23,27 @@ const options = {
           scheme: "bearer",
           bearerFormat: "JWT",
         },
+        refreshTokenAuth: {
+          type: "apiKey",
+          in: "cookie",
+          name: "refreshToken",
+        },
       },
-      schemas: {
-        Reminder: {
-          type: "object",
-          properties: {
-            _id: {
-              type: "string",
-            },
-            title: {
-              type: "string",
-            },
-            description: {
-              type: "string",
-            },
-            due_date: {
-              type: "string",
-              format: "date-time",
-            },
-            isEmergent: {
-              type: "boolean",
-            },
-            isFavorite: {
-              type: "boolean",
-            },
-            user: {
-              type: "string",
-            },
-          },
+      responses: {
+        UnauthorizedError: {
+          description: "Unauthorized. Token is missing or invalid",
+        },
+        InternalServerError: {
+          description: "Internal Server Error",
         },
       },
     },
   },
-  apis: ["./src/routes/*.ts"], // Ensure this path is correct
+  apis: ["./routes/*.ts"],
 };
 
-const specs = swaggerJsdoc(options);
+const swaggerDocs = swaggerJSDoc(options);
 
-export default specs;
+export default (app: Express) => {
+  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+};

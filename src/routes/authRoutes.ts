@@ -1,99 +1,36 @@
-import { Router } from 'express';
-import * as authController from '../controllers/authController';
+import { Router } from "express";
+import * as authController from "../controllers/authController";
 
 const router = Router();
 
 /**
  * @swagger
- * /api/v1/auth/register:
- *   post:
- *     summary: Register a new user
- *     tags: [Authentication]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               first_name:
- *                 type: string
- *               last_name:
- *                 type: string
- *               email:
- *                 type: string
- *                 format: email
- *               phone:
- *                 type: string
- *               password:
- *                 type: string
- *                 format: password
- *     responses:
- *       201:
- *         description: User registered successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 _id:
- *                   type: string
- *                 first_name:
- *                   type: string
- *                 last_name:
- *                   type: string
- *                 email:
- *                   type: string
- *                 phone:
- *                   type: string
- *                 password:
- *                   type: string
- *                 refresh_tokens:
- *                   type: array
- *                   items:
- *                     type: string
- *                 __v:
- *                   type: number
- *       500:
- *         description: Internal Server Error
+ * tags:
+ *   - name: Authentication
+ *     description: User authentication endpoints
  */
-router.post('/register', authController.register);
 
 /**
  * @swagger
- * /api/v1/auth/login:
- *   post:
- *     summary: Login a user
- *     tags: [Authentication]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *                 example: justin@gmail.com
- *               password:
- *                 type: string
- *                 format: password
- *                 example: justin123
- *     responses:
- *       200:
- *         description: User logged in successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 accessToken:
- *                   type: string
- *       500:
- *         description: Internal Server Error
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *     refreshTokenAuth:
+ *       type: apiKey
+ *       in: cookie
+ *       name: refreshToken
+ *   responses:
+ *     UnauthorizedError:
+ *       description: Unauthorized. Token is missing or invalid
+ *     InternalServerError:
+ *       description: Internal Server Error
  */
-router.post('/login', authController.login);
+
+router.post("/register", authController.register);
+router.post("/login", authController.login);
 
 /**
  * @swagger
@@ -101,15 +38,17 @@ router.post('/login', authController.login);
  *   post:
  *     summary: Logout a user
  *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       204:
  *         description: User logged out successfully
  *       401:
- *         description: Unauthorized
+ *         $ref: "#/components/responses/UnauthorizedError"
  *       500:
- *         description: Internal Server Error
+ *         $ref: "#/components/responses/InternalServerError"
  */
-router.post('/logout', authController.logout);
+router.post("/logout", authController.logout);
 
 /**
  * @swagger
@@ -117,6 +56,8 @@ router.post('/logout', authController.logout);
  *   post:
  *     summary: Refresh access token
  *     tags: [Authentication]
+ *     security:
+ *       - refreshTokenAuth: []
  *     responses:
  *       200:
  *         description: New access token generated
@@ -128,10 +69,10 @@ router.post('/logout', authController.logout);
  *                 accessToken:
  *                   type: string
  *       401:
- *         description: Unauthorized
+ *         $ref: "#/components/responses/UnauthorizedError"
  *       500:
- *         description: Internal Server Error
+ *         $ref: "#/components/responses/InternalServerError"
  */
-router.post('/refresh-token', authController.refreshAccessToken);
+router.post("/refresh-token", authController.refreshAccessToken);
 
 export default router;

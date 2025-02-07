@@ -14,13 +14,18 @@ export const register = async (req: Request, res: Response) => {
 
 export const login = async (req: Request, res: Response) => {
   try {
-    const { accessTokens, refreshTokens } = await authService.login(req.body);
-    res.cookie("refreshToken", refreshTokens, {
+    const { accessToken, refreshToken } = await authService.login(req.body);
+    res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
     });
-    res.status(200).json({ accessTokens });
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
+    res.status(200).json({ accessToken, refreshToken });
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Internal server error" });
