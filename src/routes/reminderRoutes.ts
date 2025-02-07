@@ -1,9 +1,15 @@
 import { Router } from "express";
-
 import * as reminderController from "../controllers/reminderController";
 import authenticateToken from "../middlewares/authMiddleware";
 
 const router = Router();
+
+/**
+ * @swagger
+ * tags:
+ *   name: Reminders
+ *   description: Reminder management
+ */
 
 /**
  * @swagger
@@ -22,23 +28,15 @@ const router = Router();
  *             properties:
  *               title:
  *                 type: string
- *                 example: Buy groceries
  *               description:
  *                 type: string
- *                 example: Don't forget to buy milk and bread
  *               due_date:
  *                 type: string
  *                 format: date-time
- *                 example: 2023-12-31T23:59:59Z
+ *                 example: "2025-02-01T10:00:00Z"
  *     responses:
  *       201:
  *         description: Reminder created successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Reminder'
- *       500:
- *         description: Internal Server Error
  */
 router.post("/create", authenticateToken, reminderController.createReminder);
 
@@ -46,7 +44,7 @@ router.post("/create", authenticateToken, reminderController.createReminder);
  * @swagger
  * /api/v1/reminders/edit/{id}:
  *   put:
- *     summary: Edit a reminder
+ *     summary: Edit an existing reminder
  *     tags: [Reminders]
  *     security:
  *       - bearerAuth: []
@@ -56,7 +54,6 @@ router.post("/create", authenticateToken, reminderController.createReminder);
  *         required: true
  *         schema:
  *           type: string
- *         description: Reminder ID
  *     requestBody:
  *       required: true
  *       content:
@@ -66,23 +63,14 @@ router.post("/create", authenticateToken, reminderController.createReminder);
  *             properties:
  *               title:
  *                 type: string
- *                 example: Buy groceries
  *               description:
  *                 type: string
- *                 example: Don't forget to buy milk and bread
  *               due_date:
  *                 type: string
  *                 format: date-time
- *                 example: 2023-12-31T23:59:59Z
  *     responses:
  *       200:
  *         description: Reminder updated successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Reminder'
- *       500:
- *         description: Internal Server Error
  */
 router.put("/edit/:id", authenticateToken, reminderController.editReminder);
 
@@ -90,7 +78,7 @@ router.put("/edit/:id", authenticateToken, reminderController.editReminder);
  * @swagger
  * /api/v1/reminders/emergent/{id}:
  *   patch:
- *     summary: Toggle emergent status of a reminder
+ *     summary: Mark a reminder as emergent
  *     tags: [Reminders]
  *     security:
  *       - bearerAuth: []
@@ -100,25 +88,17 @@ router.put("/edit/:id", authenticateToken, reminderController.editReminder);
  *         required: true
  *         schema:
  *           type: string
- *         description: Reminder ID
  *     responses:
  *       200:
- *         description: Reminder emergent status toggled successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Reminder'
- *       500:
- *         description: Internal Server Error
+ *         description: Reminder marked as emergent
  */
 router.patch("/emergent/:id/", authenticateToken, reminderController.markAsEmergent);
-
 
 /**
  * @swagger
  * /api/v1/reminders/favorite/{id}:
  *   patch:
- *     summary: Toggle favorite status of a reminder
+ *     summary: Mark a reminder as favorite
  *     tags: [Reminders]
  *     security:
  *       - bearerAuth: []
@@ -128,23 +108,15 @@ router.patch("/emergent/:id/", authenticateToken, reminderController.markAsEmerg
  *         required: true
  *         schema:
  *           type: string
- *         description: Reminder ID
  *     responses:
  *       200:
- *         description: Reminder favorite status toggled successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Reminder'
- *       500:
- *         description: Internal Server Error
+ *         description: Reminder marked as favorite
  */
-router.patch('/favorite/:id', authenticateToken, reminderController.markAsFavorite);
-
+router.patch("/favorite/:id", authenticateToken, reminderController.markAsFavorite);
 
 /**
  * @swagger
- * /api/v1/reminders/delete/:id:
+ * /api/v1/reminders/delete/{id}:
  *   delete:
  *     summary: Delete a reminder
  *     tags: [Reminders]
@@ -156,23 +128,15 @@ router.patch('/favorite/:id', authenticateToken, reminderController.markAsFavori
  *         required: true
  *         schema:
  *           type: string
- *         description: Reminder ID
  *     responses:
  *       200:
  *         description: Reminder deleted successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Reminder'
- *       500:
- *         description: Internal Server Error
  */
-router.delete('/delete/:id/', authenticateToken, reminderController.deleteReminder);
-
+router.delete("/delete/:id/", authenticateToken, reminderController.deleteReminder);
 
 /**
  * @swagger
- * /api/v1/reminders/:
+ * /api/v1/reminders:
  *   get:
  *     summary: Get all reminders for a user
  *     tags: [Reminders]
@@ -180,23 +144,13 @@ router.delete('/delete/:id/', authenticateToken, reminderController.deleteRemind
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: List of reminders for the user
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Reminder'
- *       500:
- *         description: Internal Server Error
+ *         description: List of reminders
  */
-router.get('/', authenticateToken, reminderController.getAllReminderForUser);
-
-
+router.get("/", authenticateToken, reminderController.getAllReminderForUser);
 
 /**
  * @swagger
- * /api/v1/reminders/{id}:
+ * /api/v1/reminders/by-id/{id}:
  *   get:
  *     summary: Get a single reminder by ID
  *     tags: [Reminders]
@@ -208,19 +162,11 @@ router.get('/', authenticateToken, reminderController.getAllReminderForUser);
  *         required: true
  *         schema:
  *           type: string
- *         description: Reminder ID
  *     responses:
  *       200:
  *         description: Reminder details
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Reminder'
- *       500:
- *         description: Internal Server Error
  */
-router.get('/:id', authenticateToken, reminderController.getSingleReminder);
-
+router.get("/by-id/:id", authenticateToken, reminderController.getSingleReminder);
 
 /**
  * @swagger
@@ -236,40 +182,23 @@ router.get('/:id', authenticateToken, reminderController.getSingleReminder);
  *         schema:
  *           type: string
  *           format: date-time
- *         description: Filter by due date
- *       - in: query
- *         name: isEmergent
- *         schema:
- *           type: boolean
- *         description: Filter by emergent status
  *       - in: query
  *         name: isFavorite
  *         schema:
  *           type: boolean
- *         description: Filter by favorite status
  *       - in: query
  *         name: sortBy
  *         schema:
  *           type: string
- *         description: Sort by field (e.g., due_date, isEmergent, isFavorite)
  *       - in: query
  *         name: order
  *         schema:
- *           type: integer
- *           enum: [1, -1]
- *         description: Sort order (1 for ascending, -1 for descending)
+ *           type: string
+ *           enum: [asc, desc]
  *     responses:
  *       200:
- *         description: Filtered and sorted reminders
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Reminder'
- *       500:
- *         description: Internal Server Error
+ *         description: List of filtered and sorted reminders
  */
-router.get('/filter-sort', authenticateToken, reminderController.filterAndSortReminders);
+router.get("/filter-sort", authenticateToken, reminderController.filterAndSortReminders);
 
 export default router;

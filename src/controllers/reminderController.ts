@@ -90,6 +90,9 @@ export const filterAndSortReminders = async (
   res: Response
 ) => {
   try {
+    console.log("herrr")
+    console.log(req.body)
+    console.log(req.query)
     const userId = req.user?.id;
     const filters = req.query;
     const sortOptions = req.query;

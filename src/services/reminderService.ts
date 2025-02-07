@@ -1,5 +1,5 @@
 import Reminder from "../models/reminder";
-import { SortOrder } from "mongoose";
+import mongoose, { SortOrder } from "mongoose";
 import IReminder from "../interfaces/reminder";
 
 // Create a new reminder
@@ -69,20 +69,23 @@ export const getSingleReminder = async (reminderId: string) => {
 
 // Filter & Sort reminders
 export const filterAndSortReminders = async (
-  userId: string,
+  userId: mongoose.Types.ObjectId,
   filters: any,
   sortOptions: any
 ) => {
+  console.log("here")
   const query: any = { user: userId };
 
-  if (filters.due_date) query.due_date = new Date(filters.due_date);
+  if (filters.due_date) query.due_date = { $gte: new Date(filters.due_date) };
   if (filters.isFavorite !== undefined)
     query.isFavorite = Boolean(filters.isFavorite);
 
   const sort: { [key: string]: SortOrder } = {};
-  if (sortOptions.sortBy)
+  if (sortOptions.sortBy) {
     sort[sortOptions.sortBy] = sortOptions.order === "desc" ? -1 : 1;
-
+  } else {
+    sort["createdAt"] = -1; // Default sorting by newest first
+  }
   return await Reminder.find(query).sort(sort).lean();
 };
 

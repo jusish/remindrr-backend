@@ -1,49 +1,20 @@
-import swaggerJSDoc from "swagger-jsdoc";
-import swaggerUi from "swagger-ui-express";
-import { Express } from "express";
-
+import swaggerJsdoc from 'swagger-jsdoc';
 const options = {
   definition: {
-    openapi: "3.0.0",
+    openapi: '3.1.0',
     info: {
-      title: "Remindrr API",
-      version: "1.0.0",
-      description: "API documentation for the Remindrr app",
+      title: 'Remindrr API Documentation',
+      version: '1.0.0',
+      description: 'API documentation for Remindrr application',
     },
     servers: [
       {
-        url: "http://localhost:8000/api/v1",
-        description: "Development Server",
+        url: 'http://localhost:8000',
+        description: 'Development server',
       },
     ],
-    components: {
-      securitySchemes: {
-        bearerAuth: {
-          type: "http",
-          scheme: "bearer",
-          bearerFormat: "JWT",
-        },
-        refreshTokenAuth: {
-          type: "apiKey",
-          in: "cookie",
-          name: "refreshToken",
-        },
-      },
-      responses: {
-        UnauthorizedError: {
-          description: "Unauthorized. Token is missing or invalid",
-        },
-        InternalServerError: {
-          description: "Internal Server Error",
-        },
-      },
-    },
   },
-  apis: ["./routes/*.ts"],
+  apis: ['./routes/*.ts'], // Path to the API docs
 };
-
-const swaggerDocs = swaggerJSDoc(options);
-
-export default (app: Express) => {
-  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
-};
+const specs = swaggerJsdoc(options);
+export default specs;
